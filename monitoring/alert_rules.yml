@@ -1,0 +1,31 @@
+groups:
+  - name: app_alerts
+    rules:
+
+      # Alert if Flask app is down
+      - alert: AppDown
+        expr: up{job="flask_app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Flask app is DOWN"
+          description: "The Todo app has been unreachable for more than 1 minute."
+
+      # Alert if error rate is high
+      - alert: HighErrorRate
+        expr: rate(app_requests_total{endpoint="/todos"}[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request rate detected"
+
+      # Alert if host CPU usage is above 80%
+      - alert: HighCPU
+        expr: 100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU usage above 80%"

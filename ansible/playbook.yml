@@ -1,0 +1,25 @@
+---
+- name: Setup DevOps Todo App Server
+  hosts: app_servers
+  become: true   # run as sudo
+
+  roles:
+    - docker      # installs Docker + Docker Compose
+    - nginx       # copies nginx config
+
+  tasks:
+    # Copy whole project to server
+    - name: Copy project files
+      copy:
+        src: "{{ playbook_dir }}/../"
+        dest: /opt/devops-app/
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    # Start all containers
+    - name: Start Docker Compose stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/devops-app/docker
+        state: present
+        pull: always

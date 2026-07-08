@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: DaemonSet              # DaemonSet = runs ONE copy on EVERY node automatically
+metadata:
+  name: node-exporter
+  namespace: devops-app
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      hostNetwork: true        # reads real host network stats
+      hostPID: true            # reads real host process stats
+      containers:
+        - name: node-exporter
+          image: prom/node-exporter:latest
+          ports:
+            - containerPort: 9100
+          args:
+            - "--path.rootfs=/host"
+          volumeMounts:
+            - name: root
+              mountPath: /host
+              readOnly: true
+      volumes:
+        - name: root
+          hostPath:
+            path: /
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: devops-app
+spec:
+  selector:
+    app: node-exporter
+  ports:
+    - port: 9100
+      targetPort: 9100

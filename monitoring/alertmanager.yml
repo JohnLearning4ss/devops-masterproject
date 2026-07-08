@@ -1,0 +1,17 @@
+global:
+  smtp_smarthost: "smtp.gmail.com:587"
+  smtp_from: "alerts@yourdomain.com"
+  smtp_auth_username: "your@gmail.com"
+  smtp_auth_password: "your-app-password"
+
+route:
+  receiver: "email-alert"
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+
+receivers:
+  - name: "email-alert"
+    email_configs:
+      - to: "blasteravismaster@gmail.com"
+        send_resolved: true
