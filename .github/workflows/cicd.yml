@@ -32,8 +32,9 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          cd app
-          pytest tests/ -v --cov=app --cov-report=term-missing
+          pytest app/tests/ -v --cov=app --cov-report=term-missing
+        env:
+          PYTHONPATH: app
 
   # ── Stage 2: Build Docker image ───────────────────────────────────────────
   build:
