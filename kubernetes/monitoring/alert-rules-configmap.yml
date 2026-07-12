@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-rules
+  namespace: devops-app
+data:
+  alert_rules.yml: |
+    groups:
+      - name: app_alerts
+        rules:
+          - alert: AppDown
+            expr: up{job="flask_app"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Flask Todo App is DOWN"
+          - alert: HighCPU
+            expr: 100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "CPU usage above 80%"

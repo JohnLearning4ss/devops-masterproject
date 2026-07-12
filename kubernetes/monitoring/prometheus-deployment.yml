@@ -1,3 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: devops-app
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: ["alertmanager:9093"]
+
+    rule_files:
+      - /etc/prometheus/alert_rules.yml
+
+    scrape_configs:
+      - job_name: "prometheus"
+        static_configs:
+          - targets: ["localhost:9090"]
+
+      - job_name: "flask_app"
+        static_configs:
+          - targets: ["todo-app:5000"]
+        metrics_path: /metrics
+
+      - job_name: "node_exporter"
+        static_configs:
+          - targets: ["node-exporter:9100"]
+
+  alert_rules.yml: |
+    groups:
+      - name: app_alerts
+        rules:
+          - alert: AppDown
+            expr: up{job="flask_app"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Flask Todo App is DOWN"
+          - alert: HighCPU
+            expr: 100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "CPU usage above 80%"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,10 +72,14 @@ spec:
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.path=/prometheus"
+            - "--web.enable-lifecycle"
           volumeMounts:
             - name: prometheus-config
               mountPath: /etc/prometheus/prometheus.yml
               subPath: prometheus.yml
+            - name: prometheus-config
+              mountPath: /etc/prometheus/alert_rules.yml
+              subPath: alert_rules.yml
             - name: prometheus-data
               mountPath: /prometheus
       volumes:

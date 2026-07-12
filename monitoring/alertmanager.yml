@@ -1,8 +1,9 @@
 global:
   smtp_smarthost: "smtp.gmail.com:587"
-  smtp_from: "alerts@yourdomain.com"
-  smtp_auth_username: "your@gmail.com"
-  smtp_auth_password: "your-app-password"
+  smtp_from: "ajohnpeter00@gmail.com"
+  smtp_auth_username: "ajohnpeter00@gmail.com"
+  smtp_auth_password: "slngzsavemjssmta"  # replace this
+  smtp_require_tls: true
 
 route:
   receiver: "email-alert"
@@ -13,5 +14,7 @@ route:
 receivers:
   - name: "email-alert"
     email_configs:
-      - to: "blasteravismaster@gmail.com"
+      - to: "ajohnpeter00@gmail.com"
         send_resolved: true
+        headers:
+          Subject: "🚨 DevOps Alert: {{ .GroupLabels.alertname }}"
