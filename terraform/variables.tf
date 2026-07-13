@@ -10,7 +10,7 @@ variable "ami_id" {
 
 variable "instance_type" {
   description = "EC2 instance size"
-  default     = "t2.micro"  # Free tier eligible
+  default     = "t3.micro"  # Free tier eligible
 }
 
 variable "key_name" {

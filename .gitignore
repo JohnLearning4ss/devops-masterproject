@@ -1,5 +1,7 @@
 .env
 *.pem
+terraform/devops-key
+terraform/devops-key.pub
 *.tfstate
 *.tfstate.backup
 .terraform/
